@@ -288,38 +288,34 @@ def UrhoExportScene(context, uScene, sOptions, fOptions):
     uScene.modelsList = orderedModelsList
     '''
 
-    a = {}
     k = 0x1000000   # node ID
     compoID = k     # component ID
-    m = 0           # internal counter
 
     # Create scene components
     if sOptions.doScenePrefab:
         sceneRoot = ET.Element('scene')
         sceneRoot.set("id", "1")
 
-        a["{:d}".format(m)] = ET.SubElement(sceneRoot, "component")
-        a["{:d}".format(m)].set("type", "Octree")
-        a["{:d}".format(m)].set("id", "1")
+        octreeElem = ET.SubElement(sceneRoot, "component")
+        octreeElem.set("type", "Octree")
+        octreeElem.set("id", "1")
 
-        a["{:d}".format(m+1)] = ET.SubElement(sceneRoot, "component")
-        a["{:d}".format(m+1)].set("type", "DebugRenderer")
-        a["{:d}".format(m+1)].set("id", "2")
+        debugElem = ET.SubElement(sceneRoot, "component")
+        debugElem.set("type", "DebugRenderer")
+        debugElem.set("id", "2")
 
-        a["{:d}".format(m+2)] = ET.SubElement(sceneRoot, "component")
-        a["{:d}".format(m+2)].set("type", "Light")
-        a["{:d}".format(m+2)].set("id", "3")
+        lightElem = ET.SubElement(sceneRoot, "component")
+        lightElem.set("type", "Light")
+        lightElem.set("id", "3")
 
-        a["{:d}".format(m+3)] = ET.SubElement(a["{:d}".format(m+2)], "attribute")
-        a["{:d}".format(m+3)].set("name", "Light Type")
-        a["{:d}".format(m+3)].set("value", "Directional")
-        m += 4
+        lightTypeElem = ET.SubElement(lightElem, "attribute")
+        lightTypeElem.set("name", "Light Type")
+        lightTypeElem.set("value", "Directional")
 
         if not sOptions.noPhysics:
-            a["{:d}".format(m)] = ET.SubElement(sceneRoot, "component")
-            a["{:d}".format(m)].set("type", "PhysicsWorld")
-            a["{:d}".format(m)].set("id", "4")
-            m += 1
+            physicsElem = ET.SubElement(sceneRoot, "component")
+            physicsElem.set("type", "PhysicsWorld")
+            physicsElem.set("id", "4")
 
         # Create Root node
         root = ET.SubElement(sceneRoot, "node")
@@ -328,38 +324,36 @@ def UrhoExportScene(context, uScene, sOptions, fOptions):
         root = ET.Element('node') 
 
     root.set("id", "{:d}".format(k))
-    a["{:d}".format(m)] = ET.SubElement(root, "attribute")
-    a["{:d}".format(m)].set("name", "Name")
-    a["{:d}".format(m)].set("value", uScene.blenderSceneName)
+    sceneElem = ET.SubElement(root, "attribute")
+    sceneElem.set("name", "Name")
+    sceneElem.set("value", uScene.blenderSceneName)
 
     # Create physics stuff for the root node
     if sOptions.globalPhysics:
-        a["{:d}".format(m)] = ET.SubElement(root, "component")
-        a["{:d}".format(m)].set("type", "RigidBody")
-        a["{:d}".format(m)].set("id", "{:d}".format(compoID))
+        rigidBodyElem = ET.SubElement(root, "component")
+        rigidBodyElem.set("type", "RigidBody")
+        rigidBodyElem.set("id", "{:d}".format(compoID))
 
-        a["{:d}".format(m+1)] = ET.SubElement(a["{:d}".format(m)] , "attribute")
-        a["{:d}".format(m+1)].set("name", "Collision Layer")
-        a["{:d}".format(m+1)].set("value", "2")
+        layerElem = ET.SubElement(rigidBodyElem, "attribute")
+        layerElem.set("name", "Collision Layer")
+        layerElem.set("value", "2")
 
-        a["{:d}".format(m+2)] = ET.SubElement(a["{:d}".format(m)], "attribute")
-        a["{:d}".format(m+2)].set("name", "Use Gravity")
-        a["{:d}".format(m+2)].set("value", "false")
+        gravityElem = ET.SubElement(rigidBodyElem, "attribute")
+        gravityElem.set("name", "Use Gravity")
+        gravityElem.set("value", "false")
 
-        a["{:d}".format(m+3)] = ET.SubElement(root, "component")
-        a["{:d}".format(m+3)].set("type", "CollisionShape")
-        a["{:d}".format(m+3)].set("id", "{:d}".format(compoID+1))
-        m += 3
+        shapeElem = ET.SubElement(root, "component")
+        shapeElem.set("type", "CollisionShape")
+        shapeElem.set("id", "{:d}".format(compoID+1))
 
-        a["{:d}".format(m+1)] = ET.SubElement(a["{:d}".format(m)], "attribute")
-        a["{:d}".format(m+1)].set("name", "Shape Type")
-        a["{:d}".format(m+1)].set("value", "TriangleMesh")
+        shapeTypeElem = ET.SubElement(shapeElem, "attribute")
+        shapeTypeElem.set("name", "Shape Type")
+        shapeTypeElem.set("value", "TriangleMesh")
 
         physicsModelFile = GetFilepath(PathType.MODELS, "Physics", fOptions)[1]
-        a["{:d}".format(m+2)] = ET.SubElement(a["{:d}".format(m)], "attribute")
-        a["{:d}".format(m+2)].set("name", "Model")
-        a["{:d}".format(m+2)].set("value", "Model;" + physicsModelFile)
-        m += 2
+        modelElem = ET.SubElement(shapeElem, "attribute")
+        modelElem.set("name", "Model")
+        modelElem.set("value", "Model;" + physicsModelFile)
         compoID += 2
 
     # Export each decomposed object
@@ -381,66 +375,56 @@ def UrhoExportScene(context, uScene, sOptions, fOptions):
         modelNode = uSceneModel.name
 
         # If child node, parent to parent object instead of root
+        nodeElem = ET.SubElement(root, "node")
         if uSceneModel.type == "StaticModel" and uSceneModel.parentObjectName:
             for usm in uScene.modelsList:
                 if usm.name == uSceneModel.parentObjectName:
-                    a[modelNode] = ET.SubElement(a[usm.name], "node") 
+                    nodeElem = ET.SubElement(a[usm.name], "node") 
                     break;
-        else: 
-            a[modelNode] = ET.SubElement(root, "node")
 
-        a[modelNode].set("id", "{:d}".format(k))
+        nodeElem.set("id", "{:d}".format(k))
 
-        a["{:d}".format(m)] = ET.SubElement(a[modelNode], "attribute")
-        a["{:d}".format(m)].set("name", "Name")
-        a["{:d}".format(m)].set("value", uSceneModel.name)
-        m += 1
+        nodeNameElem = ET.SubElement(nodeElem, "attribute")
+        nodeNameElem.set("name", "Name")
+        nodeNameElem.set("value", uSceneModel.name)
 
-        a["{:d}".format(m)] = ET.SubElement(a[modelNode], "component")
-        a["{:d}".format(m)].set("type", uSceneModel.type)
-        a["{:d}".format(m)].set("id", "{:d}".format(compoID))
-        m += 1
+        nodeTypeElem = ET.SubElement(nodeElem, "component")
+        nodeTypeElem.set("type", uSceneModel.type)
+        nodeTypeElem.set("id", "{:d}".format(compoID))
 
-        a["{:d}".format(m)] = ET.SubElement(a["{:d}".format(m-1)], "attribute")
-        a["{:d}".format(m)].set("name", "Model")
-        a["{:d}".format(m)].set("value", "Model;" + modelFile)
-        m += 1
+        nodeModelElem = ET.SubElement(nodeTypeElem, "attribute")
+        nodeModelElem.set("name", "Model")
+        nodeModelElem.set("value", "Model;" + modelFile)
 
-        a["{:d}".format(m)] = ET.SubElement(a["{:d}".format(m-2)], "attribute")
-        a["{:d}".format(m)].set("name", "Material")
-        a["{:d}".format(m)].set("value", "Material" + materials)
-        m += 1
+        nodeMaterialElem = ET.SubElement(nodeTypeElem, "attribute")
+        nodeMaterialElem.set("name", "Material")
+        nodeMaterialElem.set("value", "Material" + materials)
         compoID += 1
 
         if sOptions.individualPhysics:
-            a["{:d}".format(m)] = ET.SubElement(a[modelNode], "component")
-            a["{:d}".format(m)].set("type", "RigidBody")
-            a["{:d}".format(m)].set("id", "{:d}".format(compoID))
-            m += 1
+            rigidBodyElem = ET.SubElement(nodeElem, "component")
+            rigidBodyElem.set("type", "RigidBody")
+            rigidBodyElem.set("id", "{:d}".format(compoID))
 
-            a["{:d}".format(m)] = ET.SubElement(a["{:d}".format(m-1)], "attribute")
-            a["{:d}".format(m)].set("name", "Collision Layer")
-            a["{:d}".format(m)].set("value", "{:f}".format(2))
-            m += 1
+            layerElem = ET.SubElement(rigidBodyElem, "attribute")
+            layerElem.set("name", "Collision Layer")
+            layerElem.set("value", "{:f}".format(2))
 
-            a["{:d}".format(m)] = ET.SubElement(a["{:d}".format(m-2)], "attribute")
-            a["{:d}".format(m)].set("name", "Use Gravity")
-            a["{:d}".format(m)].set("value", "false")
-            m += 1
+            gravityElem = ET.SubElement(rigidBodyElem, "attribute")
+            gravityElem.set("name", "Use Gravity")
+            gravityElem.set("value", "false")
 
-            a["{:d}".format(m)] = ET.SubElement(a[modelNode], "component")
-            a["{:d}".format(m)].set("type", "CollisionShape")
-            a["{:d}".format(m)].set("id", "{:d}".format(compoID+1))
-            m += 1
+            shapeElem = ET.SubElement(nodeElem, "component")
+            shapeElem.set("type", "CollisionShape")
+            shapeElem.set("id", "{:d}".format(compoID+1))
 
-            a["{:d}".format(m)] = ET.SubElement(a["{:d}".format(m-1)] , "attribute")
-            a["{:d}".format(m)].set("name", "Shape Type")
-            a["{:d}".format(m)].set("value", "TriangleMesh")
-            m += 1
+            shapeTypeElem = ET.SubElement(shapeElem, "attribute")
+            shapeTypeElem.set("name", "Shape Type")
+            shapeTypeElem.set("value", "TriangleMesh")
 
-            a["{:d}".format(m)] = ET.SubElement(a["{:d}".format(m-2)], "attribute")
-            a["{:d}".format(m)].set("name", "Model")
-            a["{:d}".format(m)].set("value", "Model;" + modelFile)
+            modelElem = ET.SubElement(shapeElem, "attribute")
+            modelElem.set("name", "Model")
+            modelElem.set("value", "Model;" + modelFile)
 
             compoID += 2
 
