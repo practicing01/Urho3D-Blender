@@ -327,6 +327,7 @@ class TOptions:
         self.onlySelected = False
         self.orientation = Quaternion()
         self.scale = 1.0
+        self.rbmass = 0.0
         self.globalOrigin = True
         self.bonesGlobalOrigin = False  #useless
         self.actionsGlobalOrigin = False
@@ -1601,10 +1602,6 @@ def DecomposeMesh(scene, meshObj, tData, tOptions, errorsMem):
                 if textureData.type != 'IMAGE':
                     continue
                 if textureData.image is None:
-                    continue
-                # Skip disabled textures
-                textureIndex = material.texture_slots.find(texture.name)
-                if textureIndex >= 0 and not material.use_textures[textureIndex]:
                     continue
                 imageName = textureData.image.name
                 if texture.use_map_color_diffuse:

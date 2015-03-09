@@ -32,6 +32,7 @@ class SOptions:
         self.mergeObjects = False
         self.shape = None
         self.shapeItems = None
+        self.allrbmass = None
 
 
 class UrhoSceneMaterial:
@@ -388,7 +389,7 @@ def UrhoExportScene(context, uScene, sOptions, fOptions):
         a["{:d}".format(m+2)] = ET.SubElement(a["{:d}".format(m)], "attribute")
         a["{:d}".format(m+2)].set("name", "Use Gravity")
         a["{:d}".format(m+2)].set("value", "false")
-
+        
         a["{:d}".format(m+3)] = ET.SubElement(root, "component")
         a["{:d}".format(m+3)].set("type", "CollisionShape")
         a["{:d}".format(m+3)].set("id", "{:d}".format(compoID+1))
@@ -510,6 +511,12 @@ def UrhoExportScene(context, uScene, sOptions, fOptions):
             a["{:d}".format(m)] = ET.SubElement(a["{:d}".format(m-2)], "attribute")
             a["{:d}".format(m)].set("name", "Use Gravity")
             a["{:d}".format(m)].set("value", "false")
+            m += 1
+            
+            #MASS
+            a["{:d}".format(m)] = ET.SubElement(a["{:d}".format(m-3)], "attribute")
+            a["{:d}".format(m)].set("name", "Mass")
+            a["{:d}".format(m)].set("value", FloatToString(sOptions.allrbmass))
             m += 1
 
             a["{:d}".format(m)] = ET.SubElement(a[modelNode], "component")

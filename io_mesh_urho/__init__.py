@@ -282,6 +282,7 @@ class UrhoExportSettings(bpy.types.PropertyGroup):
 
         self.source = 'ONLY_SELECTED'
         self.scale = 1.0
+        self.rbmass = 0.0
         self.modifiers = False
         self.modifiersRes = 'PREVIEW'
         self.origin = 'LOCAL'
@@ -430,6 +431,15 @@ class UrhoExportSettings(bpy.types.PropertyGroup):
             name = "Scale", 
             description = "Scale to apply on the exported objects", 
             default = 1.0,
+            min = 0.0, 
+            max = 1000.0,
+            step = 10,
+            precision = 1)
+            
+    rbmass = FloatProperty(
+            name = "Rigidbody mass", 
+            description = "Mass to apply on the exported objects", 
+            default = 0.0,
             min = 0.0, 
             max = 1000.0,
             step = 10,
@@ -864,6 +874,7 @@ class UrhoExportRenderPanel(bpy.types.Panel):
 
         box.prop(settings, "orientation")
         box.prop(settings, "scale")
+        box.prop(settings, "rbmass")
         
         box.prop(settings, "modifiers")
         if settings.modifiers:
@@ -1178,6 +1189,7 @@ def ExecuteUrhoExport(context):
     tOptions.useLods = settings.lods
     tOptions.onlySelected = (settings.source == 'ONLY_SELECTED')
     tOptions.scale = settings.scale
+    tOptions.rbmass = settings.rbmass
     tOptions.globalOrigin = (settings.origin == 'GLOBAL')
     tOptions.applyModifiers = settings.modifiers
     tOptions.applySettings = settings.modifiersRes
@@ -1235,7 +1247,8 @@ def ExecuteUrhoExport(context):
             tOptions.shape = shapeItems[1]
             sOptions.shape = shapeItems[1]
             break
-
+    #put rbmass from TOptions to SOptions
+    sOptions.allrbmass = settings.rbmass
     sOptions.mergeObjects = settings.merge
     sOptions.doIndividualPrefab = settings.individualPrefab
     sOptions.doCollectivePrefab = settings.collectivePrefab
