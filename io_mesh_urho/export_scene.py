@@ -63,13 +63,21 @@ class UrhoSceneModel:
         self.materialsList = []
         # Model bounding box
         self.boundingBox = None
+        # World Pos
+        self.wpos = None
+        # World Rot
+        self.wrot = None
 
     def Load(self, uExportData, uModel, objectName):
         self.name = uModel.name
+        
 
         self.blenderObjectName = objectName
         if objectName:
             parentObject = bpy.data.objects[objectName].parent
+            self.wpos = bpy.data.objects[objectName].location
+            self.wrot = bpy.data.objects[objectName].rotation_quaternion
+            
             if parentObject and parentObject.type == 'MESH':
                 self.parentObjectName = parentObject.name
 
@@ -364,7 +372,9 @@ def UrhoExportScene(context, uScene, sOptions, fOptions):
     a["{:d}".format(m)] = ET.SubElement(root, "attribute")
     a["{:d}".format(m)].set("name", "Name")
     a["{:d}".format(m)].set("value", uScene.blenderSceneName)
-
+    #m +=1
+    
+    
     # Create physics stuff for the root node
     if sOptions.globalPhysics:
         a["{:d}".format(m)] = ET.SubElement(root, "component")
@@ -427,8 +437,28 @@ def UrhoExportScene(context, uScene, sOptions, fOptions):
         a["{:d}".format(m)] = ET.SubElement(a[modelNode], "attribute")
         a["{:d}".format(m)].set("name", "Name")
         a["{:d}".format(m)].set("value", uSceneModel.name)
-        m += 1
-
+        
+        a["{:d}".format(m+1)] = ET.SubElement(a[modelNode], "attribute")
+        a["{:d}".format(m+1)].set("name", "Position")
+        objPos = [0,0,0]
+        #objPos = uSceneModel.wpos
+        # swap yz
+        objPos[0] = uSceneModel.wpos[0]
+        objPos[1] = uSceneModel.wpos[2]
+        objPos[2] = uSceneModel.wpos[1]
+        a["{:d}".format(m+1)].set("value", Vector3ToString(objPos))
+        
+        a["{:d}".format(m+2)] = ET.SubElement(a[modelNode], "attribute")
+        a["{:d}".format(m+2)].set("name", "Rotation")
+        objRot = [0,0,0,0]
+        objRot[0] = uSceneModel.wrot[0]
+        objRot[1] = uSceneModel.wrot[1]
+        objRot[2] = uSceneModel.wrot[2]
+        objRot[3] = uSceneModel.wrot[3]
+        
+        a["{:d}".format(m+2)].set("value", Vector4ToString(objRot))
+        m +=1
+        
         a["{:d}".format(m)] = ET.SubElement(a[modelNode], "component")
         a["{:d}".format(m)].set("type", uSceneModel.type)
         a["{:d}".format(m)].set("id", "{:d}".format(compoID))
