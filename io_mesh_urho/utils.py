@@ -171,6 +171,9 @@ def CheckFilepath(fileFullPaths, fOptions):
 # XML formatters
 #--------------------
 
+def BoolToString(value):
+    return "{}".format(value)
+
 def FloatToString(value):
     return "{:g}".format(value)
 

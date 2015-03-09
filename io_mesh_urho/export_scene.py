@@ -4,7 +4,7 @@
 #
 
 from .utils import PathType, GetFilepath, CheckFilepath, \
-                   FloatToString, Vector3ToString, Vector4ToString, \
+                   FloatToString, Vector3ToString, Vector4ToString, BoolToString, \
                    WriteXmlFile
 
 from xml.etree import ElementTree as ET
@@ -33,6 +33,7 @@ class SOptions:
         self.shape = None
         self.shapeItems = None
         self.allrbmass = None
+        self.usegravity = None
 
 
 class UrhoSceneMaterial:
@@ -510,7 +511,7 @@ def UrhoExportScene(context, uScene, sOptions, fOptions):
 
             a["{:d}".format(m)] = ET.SubElement(a["{:d}".format(m-2)], "attribute")
             a["{:d}".format(m)].set("name", "Use Gravity")
-            a["{:d}".format(m)].set("value", "false")
+            a["{:d}".format(m)].set("value", BoolToString(sOptions.usegravity))
             m += 1
             
             #MASS

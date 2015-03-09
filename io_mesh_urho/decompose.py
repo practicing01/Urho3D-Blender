@@ -328,6 +328,7 @@ class TOptions:
         self.orientation = Quaternion()
         self.scale = 1.0
         self.rbmass = 0.0
+        self.usegravity = False
         self.globalOrigin = True
         self.bonesGlobalOrigin = False  #useless
         self.actionsGlobalOrigin = False

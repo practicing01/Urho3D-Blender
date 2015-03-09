@@ -283,6 +283,7 @@ class UrhoExportSettings(bpy.types.PropertyGroup):
         self.source = 'ONLY_SELECTED'
         self.scale = 1.0
         self.rbmass = 0.0
+        self.usegravity = False
         self.modifiers = False
         self.modifiersRes = 'PREVIEW'
         self.origin = 'LOCAL'
@@ -444,6 +445,11 @@ class UrhoExportSettings(bpy.types.PropertyGroup):
             max = 1000.0,
             step = 10,
             precision = 1)
+            
+    usegravity = BoolProperty(
+            name = "Use Gravity",
+            description = "Turn on-off the usage of Bullet gravity for rigidbodyes",
+            default = False)
 
     modifiers = BoolProperty(
             name = "Apply modifiers",
@@ -874,7 +880,6 @@ class UrhoExportRenderPanel(bpy.types.Panel):
 
         box.prop(settings, "orientation")
         box.prop(settings, "scale")
-        box.prop(settings, "rbmass")
         
         box.prop(settings, "modifiers")
         if settings.modifiers:
@@ -999,7 +1004,16 @@ class UrhoExportRenderPanel(bpy.types.Panel):
             row.separator()
             row.prop(settings, "individualPrefab")
             row.label("", icon='MOD_BUILD')
-
+            
+            row = box.row()
+            row.prop(settings, "rbmass")
+            row.label("", icon='PHYSICS')
+            
+            row = box.row()
+            row.separator()
+            row.prop(settings, "usegravity")
+            row.label("", icon='PHYSICS')
+            
             if not settings.merge:
                 row = box.row()
                 row.separator()
@@ -1249,6 +1263,8 @@ def ExecuteUrhoExport(context):
             break
     #put rbmass from TOptions to SOptions
     sOptions.allrbmass = settings.rbmass
+    sOptions.usegravity = settings.usegravity
+    
     sOptions.mergeObjects = settings.merge
     sOptions.doIndividualPrefab = settings.individualPrefab
     sOptions.doCollectivePrefab = settings.collectivePrefab
