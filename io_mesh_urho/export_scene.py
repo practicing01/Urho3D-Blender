@@ -530,7 +530,7 @@ def UrhoExportScene(context, uScene, sOptions, fOptions):
             a["{:d}".format(m)].set("value", shapeType)
             m += 1
 
-            if shapeType == "TriangleMesh":
+            if shapeType == "TriangleMesh" or shapeType == "ConvexHull":
                 a["{:d}".format(m)] = ET.SubElement(a["{:d}".format(m-2)], "attribute")
                 a["{:d}".format(m)].set("name", "Model")
                 a["{:d}".format(m)].set("value", "Model;" + modelFile)
