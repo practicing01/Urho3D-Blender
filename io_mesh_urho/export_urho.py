@@ -502,6 +502,7 @@ class UrhoExportOptions:
     def __init__(self):
         self.splitSubMeshes = False
         self.useStrictLods = True
+        self.maxbones = 64
 
 
 #--------------------
@@ -793,7 +794,10 @@ def GetMaxElementMask(indices, vertices):
 #--------------------
 
 def UrhoExport(tData, uExportOptions, uExportData, errorsMem):
-
+    
+    #override max bones count with user settings
+    MAX_SKIN_MATRICES = uExportOptions.maxbones
+    
     uModel = UrhoModel()
     uModel.name = tData.objectName
     uExportData.models.append(uModel)    

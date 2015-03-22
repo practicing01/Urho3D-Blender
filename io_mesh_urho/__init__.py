@@ -334,6 +334,8 @@ class UrhoExportSettings(bpy.types.PropertyGroup):
         self.scenePrefab = False
         self.physics = 'INDIVIDUAL'
         self.shape = 'TRIANGLEMESH'
+        self.maxbones = '64'
+        self.nodespos = False
 
     # Revert the output paths back to their default values
     def reset_paths(self, context, forced):
@@ -426,7 +428,14 @@ class UrhoExportSettings(bpy.types.PropertyGroup):
                      ('Y_PLUS',  "Back (+Y +Z) *", ""),
                      ('Z_MINUS', "Bottom (--Z --Y)", ""),
                      ('Z_PLUS',  "Top (+Z +Y)", "")),
-            default = 'X_PLUS')
+            default = 'Y_PLUS')
+            
+    maxbones = EnumProperty(
+            name = "Max bones",
+            description = "Setup max bones limitation for: DX11 & GL3 - 128, DX9 & GL2 - 64 bones",
+            items = (('64', "DX9 & GL2 max bones - 64", ""),
+                     ('128',  "DX11 & GL3 max bones - 128", "")),
+            default = '64')
 
     scale = FloatProperty(
             name = "Scale", 
@@ -724,6 +733,11 @@ class UrhoExportSettings(bpy.types.PropertyGroup):
             items = shapeItems,
             default = 'TRIANGLEMESH',
             update = update_func2)
+            
+    nodespos = BoolProperty(
+            name = "Save node position ( select front view as back for this )",
+            description = "Save node's world position when doing export",
+            default = False)
 
     bonesGlobalOrigin = BoolProperty(name = "Bones global origin", default = False)
     actionsGlobalOrigin = BoolProperty(name = "Actions global origin", default = False)
@@ -920,6 +934,9 @@ class UrhoExportRenderPanel(bpy.types.Panel):
             col.prop(settings, "onlyDeformBones")
             col.prop(settings, "onlyVisibleBones")
             col.prop(settings, "parentBoneSkinning")
+            row = box.row()
+            row.prop(settings, "maxbones")
+            row.label("", icon='BONE_DATA')
 
         row = box.row()
         row.enabled = settings.skeletons
@@ -1013,6 +1030,12 @@ class UrhoExportRenderPanel(bpy.types.Panel):
             row.separator()
             row.prop(settings, "usegravity")
             row.label("", icon='PHYSICS')
+            
+            row = box.row()
+            row.separator()
+            row.prop(settings, "nodespos")
+            row.label("", icon='PHYSICS')
+            
             
             if not settings.merge:
                 row = box.row()
@@ -1261,9 +1284,12 @@ def ExecuteUrhoExport(context):
             tOptions.shape = shapeItems[1]
             sOptions.shape = shapeItems[1]
             break
-    #put rbmass from TOptions to SOptions
+    
+    #Collect from global settings to scene options struct
     sOptions.allrbmass = settings.rbmass
     sOptions.usegravity = settings.usegravity
+    sOptions.orientation = settings.orientation
+    sOptions.nodespos = settings.nodespos
     
     sOptions.mergeObjects = settings.merge
     sOptions.doIndividualPrefab = settings.individualPrefab
@@ -1312,7 +1338,14 @@ def ExecuteUrhoExport(context):
         uExportOptions = UrhoExportOptions()
         uExportOptions.splitSubMeshes = settings.geometrySplit
         uExportOptions.useStrictLods = settings.strictLods
-
+        
+        uExportOptions.maxbones = 64
+        
+        if settings.orientation == '64':
+          uExportOptions.maxbones = 64
+        elif settings.orientation == '128':
+          uExportOptions.maxbones = 128
+        
         if DEBUG: ttt = time.time() #!TIME
         UrhoExport(tData, uExportOptions, uExportData, settings.errorsMem)
         if DEBUG: print("[TIME] Export in {:.4f} sec".format(time.time() - ttt) ) #!TIME

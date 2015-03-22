@@ -34,6 +34,8 @@ class SOptions:
         self.shapeItems = None
         self.allrbmass = None
         self.usegravity = None
+        self.orientation = None
+        self.nodespos = False
 
 
 class UrhoSceneMaterial:
@@ -442,22 +444,36 @@ def UrhoExportScene(context, uScene, sOptions, fOptions):
         
         a["{:d}".format(m+1)] = ET.SubElement(a[modelNode], "attribute")
         a["{:d}".format(m+1)].set("name", "Position")
+
         objPos = [0,0,0]
-        #objPos = uSceneModel.wpos
-        # swap yz
-        objPos[0] = uSceneModel.wpos[0]
-        objPos[1] = uSceneModel.wpos[2]
-        objPos[2] = uSceneModel.wpos[1]
+        
+        if sOptions.nodespos:
+          if sOptions.orientation == 'Y_MINUS':
+            objPos[0] = uSceneModel.wpos[0]
+            objPos[1] = uSceneModel.wpos[2]
+            objPos[2] = -uSceneModel.wpos[1]
+            # Back
+          elif sOptions.orientation == 'Y_PLUS':
+            objPos[0] = uSceneModel.wpos[0]
+            objPos[1] = uSceneModel.wpos[2]
+            objPos[2] = uSceneModel.wpos[1]
+        #objPos = sOptions.orientation * uSceneModel.wpos
+        # Write node position
         a["{:d}".format(m+1)].set("value", Vector3ToString(objPos))
         
         a["{:d}".format(m+2)] = ET.SubElement(a[modelNode], "attribute")
         a["{:d}".format(m+2)].set("name", "Rotation")
-        objRot = [0,0,0,0]
-        objRot[0] = uSceneModel.wrot[0]
-        objRot[1] = uSceneModel.wrot[1]
-        objRot[2] = uSceneModel.wrot[2]
-        objRot[3] = uSceneModel.wrot[3]
         
+        objRot = [0,0,0,0]
+        
+        if sOptions.nodespos:
+          objRot[0] = uSceneModel.wrot[0]
+          objRot[1] = uSceneModel.wrot[1]
+          objRot[2] = uSceneModel.wrot[2]
+          objRot[3] = uSceneModel.wrot[3]
+        
+        #objRot = sOptions.orientation * uSceneModel.wrot    
+        # write node rotation
         a["{:d}".format(m+2)].set("value", Vector4ToString(objRot))
         m +=1
         
