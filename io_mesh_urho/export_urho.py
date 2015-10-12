@@ -47,7 +47,7 @@ TRIANGLE_LIST       = 0
 LINE_LIST           = 1
             
 # Max number of bones supported by HW skinning
-MAX_SKIN_MATRICES   = 64
+MAX_SKIN_MATRICES   = 128
 BONES_PER_VERTEX    = 4
 
 #--------------------
@@ -502,7 +502,7 @@ class UrhoExportOptions:
     def __init__(self):
         self.splitSubMeshes = False
         self.useStrictLods = True
-        self.maxbones = 64
+        self.maxbones = 128
 
 
 #--------------------

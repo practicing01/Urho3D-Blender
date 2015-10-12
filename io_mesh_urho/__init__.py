@@ -435,7 +435,7 @@ class UrhoExportSettings(bpy.types.PropertyGroup):
             description = "Setup max bones limitation for: DX11 & GL3 - 128, DX9 & GL2 - 64 bones",
             items = (('64', "DX9 & GL2 max bones - 64", ""),
                      ('128',  "DX11 & GL3 max bones - 128", "")),
-            default = '64')
+            default = '128')
 
     scale = FloatProperty(
             name = "Scale", 
@@ -1339,7 +1339,7 @@ def ExecuteUrhoExport(context):
         uExportOptions.splitSubMeshes = settings.geometrySplit
         uExportOptions.useStrictLods = settings.strictLods
         
-        uExportOptions.maxbones = 64
+        uExportOptions.maxbones = 128
         
         if settings.orientation == '64':
           uExportOptions.maxbones = 64
